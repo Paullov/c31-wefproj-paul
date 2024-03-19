@@ -1,0 +1,36 @@
+body {
+  box-sizing: border-box;
+}
+
+header {
+  height: 4rem;
+  text-align: center;
+  font-size: 2rem;
+
+  white-space: nowrap;
+}
+
+#canvas {
+  width: fit-content;
+  height: fit-content;
+}
+
+.main_section {
+}
+
+:root {
+  --primary-color: #6750a4;
+  --white-color: #fff;
+  --secondary-color: #eaddff;
+  --tertiary-color: #21005d;
+  --dark-color: #1d192b;
+}
+
+.reset_btn {
+  color: var(--white-color);
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+  font-size: 24px;
+  padding: 6px 12px;
+}
