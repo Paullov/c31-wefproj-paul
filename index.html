@@ -33,22 +33,24 @@
           id="myRange"
         />
       </div>
-      <div class="picker_container">
-        <div class="color-picker"></div>
-      </div>
+
       <select name="life_pattern" id="life_pattern">
-        <option value="normal">Normal</option>
-        <option value="gun">Gun</option>
-        <option value="wall">wall</option>
-        <option value="snowflake">snowflake</option>
+        <option id="normal" value="normal">Normal</option>
+        <option id="gun" value="gun">Gun</option>
+        <option id="wall" value="wall">wall</option>
+        <option id="spider" value="spider">Spider</option>
       </select>
 
-      <select name="player_choice" id="player_choice">
-        <option value="tough">Tough Life</option>
+      <select name="player_choice" id="player_choice" value="normal">
         <option value="normal">Normal Life</option>
+        <option value="tough">Tough Life</option>
+
         <option value="fragile">Fragile Life</option>
       </select>
       <button class="night_btn">Night Mode</button>
+      <div class="picker_container">
+        <div class="color-picker"></div>
+      </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
     <script

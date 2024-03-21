@@ -90,3 +90,19 @@ header {
   box-shadow: -410px 0 0 400px var(--secondary-color);
   cursor: pointer;
 }
+
+.picker_container {
+  margin-top: 4rem;
+}
+
+/* selector */
+
+select {
+  line-height: 20px;
+  display: inline-block;
+}
+
+#gun {
+  background-image: url(/assets/Gospers_glider_gun.gif);
+  width: 100%;
+}

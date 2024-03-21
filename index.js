@@ -12,35 +12,59 @@ let gameStart = true;
 let lifeForm = "normal";
 
 //pattern//
-const pattern = `.......O.......O.......OO.............
-.......OOO.....OOO.....OO.............
-..........O.......O...................
-.........OO......OO................OO.
-..............................OO..O..O
-..............................O.O..OO.
-.................................OO...
-.....O............................O...
-.....OOO..........................O.OO
-........O......................OO.O..O
-.......OO......................OO.OO..
-......................................
-......................................
-.................O....................
-..OO.OO.........O.O..........OO.......
-O..O.OO........O...O.........O........
-OO.O...........O...O..........OOO.....
-...O...........O...O............O.....
-...OO...........O.O...................
-.OO..O.O.........O....................
-O..O..OO..............................
-.OO................OO.................
-...................O..................
-.............OO.....OOO...............
-.............OO.......O...............`;
+const pattern = `
+..........OO...............
+.....OOO..OOO..............
+.......O..OO.O.O....O......
+.....OO.....OOO......O.....
+.OO..O..OOO.O...OOOO.O....O
+OO.OO.....O....OO...OOO.O.O
+.O...O.........O........O.O
+OO...O.....................
+.O...O.........O........O.O
+OO.OO.....O....OO...OOO.O.O
+.OO..O..OOO.O...OOOO.O....O
+.....OO.....OOO......O.....
+.......O..OO.O.O....O......
+.....OOO..OOO..............
+..........OO...............`;
+
+const pattern2 = `........OO........
+......O....O......
+..OO..........OO..
+..O..O......O..O..
+...OOO.OOOO.OOO...
+......O....O......
+...OOO......OOO...
+..O............O..
+...OOOOO..OOOOO...
+........OO........
+.....OO....OO.....
+....O.O....O.O....
+....OO......OO....
+..................
+..................
+......OO..OO......
+.....O..OO..O.....
+...O.O.OOOO.O.O...
+.OOO.O.O..O.O.OOO.
+O...OO.OOOO.OO...O
+.OO...O....O...OO.
+...OO..O..O..OO...
+...O.OO....OO.O...`;
+
+const pattern3 = `........................O
+......................O.O
+............OO......OO............OO
+...........O...O....OO............OO
+OO........O.....O...OO
+OO........O...O.OO....O.O
+..........O.....O.......O
+...........O...O
+............OO`;
 
 function patternConvert(pattern) {
   const patternArray = pattern.split("\n");
-  console.log(patternArray);
 
   let patternConvertedArray = [];
   for (let array of patternArray) {
@@ -115,8 +139,8 @@ function setup() {
       for (let i = 0; i < columns; i++) {
         for (let j = 0; j < rows; j++) {
           /*      currentBoard[i][j] = random() > 0.8 ? 1 : 0; */
-          currentBoard[i][j] = 0;
-          nextBoard[i][j] = 0;
+          currentBoard[i][j] = [0];
+          nextBoard[i][j] = [0];
         }
       }
       noLoop();
@@ -187,8 +211,8 @@ function initiate() {
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
       /*      currentBoard[i][j] = random() > 0.8 ? 1 : 0; */
-      currentBoard[i][j] = 0;
-      nextBoard[i][j] = 0;
+      currentBoard[i][j] = [0];
+      nextBoard[i][j] = [0];
     }
   }
 }
@@ -202,9 +226,9 @@ function draw() {
   generate();
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
-      if (currentBoard[i][j] === 1) {
-        fill(boxColor);
-      } else {
+      if (currentBoard[i][j][0] === 1) {
+        fill(currentBoard[i][j][1]);
+      } else if (currentBoard[i][j][0] === 0) {
         fill(255);
       }
       stroke(strokeColor);
@@ -231,36 +255,71 @@ function generate() {
           }
           // The modulo operator is crucial for wrapping on the edge
           neighbors +=
-            currentBoard[(x + i + columns) % columns][(y + j + rows) % rows];
+            currentBoard[(x + i + columns) % columns][(y + j + rows) % rows][0];
         }
       }
 
       // Rules of Life
       if (gameRule === "normal") {
-        if (currentBoard[x][y] == 1 && neighbors < 2) {
+        if (currentBoard[x][y][0] == 1 && neighbors < 2) {
           // Die of Loneliness
-          nextBoard[x][y] = 0;
-        } else if (currentBoard[x][y] == 1 && neighbors > 3) {
+          nextBoard[x][y] = [0];
+        } else if (currentBoard[x][y][0] == 1 && neighbors > 3) {
           // Die of Overpopulation
-          nextBoard[x][y] = 0;
-        } else if (currentBoard[x][y] == 0 && neighbors == 3) {
+          nextBoard[x][y] = [0];
+        } else if (currentBoard[x][y][0] == 0 && neighbors == 3) {
           // New life due to Reproduction
-          nextBoard[x][y] = 1;
+          // New life color based on his neigbour color form (from left to right from top to bttom)
+          /*     nextBoard[x][y] = [1, boxColor]; */
+          if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
+          } else if (currentBoard?.[x]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x][y - 1][1]];
+          } else if (currentBoard?.[x + 1]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x + 1][y - 1][1]];
+          } else if (currentBoard?.[x - 1]?.[y]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x - 1][y][1]];
+          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
+          } else if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
+          } else if (currentBoard?.[x]?.[y + 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x][y + 1][1]];
+          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
+          }
         } else {
           // Stasis
           nextBoard[x][y] = currentBoard[x][y];
         }
       }
       if (gameRule === "tough") {
-        if (currentBoard[x][y] == 1 && neighbors < 2) {
+        if (currentBoard[x][y][0] == 1 && neighbors < 2) {
           // Die of Loneliness
-          nextBoard[x][y] = 0;
-        } else if (currentBoard[x][y] == 1 && neighbors > 4) {
+          nextBoard[x][y] = [0];
+        } else if (currentBoard[x][y][0] == 1 && neighbors > 4) {
           // Die of Overpopulation
-          nextBoard[x][y] = 0;
-        } else if (currentBoard[x][y] == 0 && neighbors >= 3) {
+          nextBoard[x][y] = [0];
+        } else if (currentBoard[x][y][0] == 0 && neighbors >= 2) {
           // New life due to Reproduction
-          nextBoard[x][y] = 1;
+          // New life color based on his neigbour color form (from left to right from top to bttom)
+          if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
+          } else if (currentBoard?.[x]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x][y - 1][1]];
+          } else if (currentBoard?.[x + 1]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x + 1][y - 1][1]];
+          } else if (currentBoard?.[x - 1]?.[y]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x - 1][y][1]];
+          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
+          } else if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
+          } else if (currentBoard?.[x]?.[y + 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x][y + 1][1]];
+          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
+          }
         } else {
           // Stasis
           nextBoard[x][y] = currentBoard[x][y];
@@ -268,15 +327,33 @@ function generate() {
       }
 
       if (gameRule === "fragile") {
-        if (currentBoard[x][y] == 1 && neighbors < 3) {
+        if (currentBoard[x][y][0] == 1 && neighbors < 3) {
           // Die of Loneliness
-          nextBoard[x][y] = 0;
-        } else if (currentBoard[x][y] == 1 && neighbors > 3) {
+          nextBoard[x][y] = [0];
+        } else if (currentBoard[x][y][0] == 1 && neighbors > 3) {
           // Die of Overpopulation
-          nextBoard[x][y] = 0;
-        } else if (currentBoard[x][y] == 0 && neighbors == 3) {
+          nextBoard[x][y] = [0];
+        } else if (currentBoard[x][y][0] == 0 && neighbors == 3) {
           // New life due to Reproduction
-          nextBoard[x][y] = 1;
+          // New life due to Reproduction
+          // New life color based on his neigbour color form (from left to right from top to bttom)
+          if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
+          } else if (currentBoard?.[x]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x][y - 1][1]];
+          } else if (currentBoard?.[x + 1]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x + 1][y - 1][1]];
+          } else if (currentBoard?.[x - 1]?.[y]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x - 1][y][1]];
+          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
+          } else if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
+          } else if (currentBoard?.[x]?.[y + 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x][y + 1][1]];
+          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
+            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
+          }
         } else {
           // Stasis
           nextBoard[x][y] = currentBoard[x][y];
@@ -298,113 +375,71 @@ function mouseDragged() {
   if (mouseX > width || mouseY > height) {
     return;
   }
+
   const x = Math.floor(mouseX / unitLength);
   const y = Math.floor(mouseY / unitLength);
 
   if (lifeForm === "normal") {
-    currentBoard[x][y] = 1;
+    currentBoard[x][y] = [1, boxColor];
     fill(boxColor);
     stroke(strokeColor);
     rect(x * unitLength, y * unitLength, unitLength, unitLength);
   } else if (lifeForm === "gun") {
-    currentBoard[x + 6][y - 5] = 1;
+    const gun = patternConvert(pattern3);
+    console.log(gun);
+    for (let row in gun) {
+      for (let column in gun[row]) {
+        if (gun[row][column] === 1) {
+          currentBoard[x + Number(column)][y + Number(row)] = [1, boxColor];
 
-    currentBoard[x + 4][y - 4] = 1;
-
-    currentBoard[x + 6][y - 4] = 1;
-
-    currentBoard[x - 6][y - 3] = 1;
-
-    currentBoard[x - 5][y - 3] = 1;
-
-    currentBoard[x + 2][y - 3] = 1;
-
-    currentBoard[x + 3][y - 3] = 1;
-
-    currentBoard[x - 7][y - 2] = 1;
-
-    currentBoard[x - 3][y - 2] = 1;
-
-    currentBoard[x + 2][y - 2] = 1;
-
-    currentBoard[x + 3][y - 2] = 1;
-
-    currentBoard[x - 8][y - 1] = 1;
-
-    currentBoard[x - 2][y - 1] = 1;
-
-    currentBoard[x + 2][y - 1] = 1;
-
-    currentBoard[x + 3][y - 1] = 1;
-
-    currentBoard[x - 8][y] = 1;
-
-    currentBoard[x - 4][y] = 1;
-
-    currentBoard[x - 2][y] = 1;
-
-    currentBoard[x - 1][y] = 1;
-
-    currentBoard[x + 4][y] = 1;
-
-    currentBoard[x + 6][y] = 1;
-
-    currentBoard[x - 8][y + 1] = 1;
-
-    currentBoard[x - 2][y + 1] = 1;
-
-    currentBoard[x + 6][y + 1] = 1;
-
-    currentBoard[x - 7][y + 2] = 1;
-
-    currentBoard[x - 3][y + 2] = 1;
-
-    currentBoard[x - 6][y + 3] = 1;
-
-    currentBoard[x - 5][y + 3] = 1;
-
-    currentBoard[x + 5][y + 5] = 1;
-
-    currentBoard[x + 6][y + 5] = 1;
-
-    currentBoard[x + 5][y + 6] = 1;
-
-    currentBoard[x + 6][y + 7] = 1;
-
-    currentBoard[x + 7][y + 7] = 1;
-
-    currentBoard[x + 8][y + 7] = 1;
-
-    currentBoard[x + 8][y + 8] = 1;
-
-    fill(boxColor);
-    stroke(strokeColor);
-    rect(x * unitLength, y * unitLength, unitLength, unitLength);
-  } else if (lifeForm === "snowflake") {
-    currentBoard[x][y - 3] = 1;
-    currentBoard[x - 1][y - 2] = 1;
-    currentBoard[x][y - 2] = 1;
-    currentBoard[x + 1][y - 2] = 1;
-    currentBoard[x - 2][y - 1] = 1;
-    currentBoard[x][y - 1] = 1;
-    currentBoard[x + 2][y - 1] = 1;
-    currentBoard[x - 3][y] = 1;
-    currentBoard[x - 2][y] = 1;
-    currentBoard[x - 1][y] = 1;
-    currentBoard[x + 1][y] = 1;
-    currentBoard[x + 2][y] = 1;
-    currentBoard[x + 3][y] = 1;
-    currentBoard[x - 2][y - 1] = 1;
-    currentBoard[x][y + 1] = 1;
-    currentBoard[x + 2][y + 1] = 1;
-    currentBoard[x - 1][y + 2] = 1;
-    currentBoard[x][y + 2] = 1;
-    currentBoard[x + 1][y + 2] = 1;
-    currentBoard[x][y + 3] = 1;
-    fill(boxColor);
-    stroke(strokeColor);
-    rect(x * unitLength, y * unitLength, unitLength, unitLength);
+          fill(boxColor);
+          stroke(strokeColor);
+          rect(
+            (x + column) * unitLength,
+            (y + row) * unitLength,
+            unitLength,
+            unitLength
+          );
+        }
+      }
+    }
+  } else if (lifeForm === "spider") {
+    const spider = patternConvert(pattern2);
+    console.log(spider);
+    for (let row in spider) {
+      for (let column in spider[row]) {
+        if (spider[row][column] === 1) {
+          currentBoard[x + Number(column)][y + Number(row)] = [1, boxColor];
+          fill(boxColor);
+          stroke(strokeColor);
+          rect(
+            (x + column) * unitLength,
+            (y + row) * unitLength,
+            unitLength,
+            unitLength
+          );
+        }
+      }
+    }
   } else if (lifeForm === "wall") {
+    const wall = patternConvert(pattern);
+
+    for (let row in wall) {
+      for (let column in wall[row]) {
+        if (wall[row][column] === 1) {
+          console.log("x+column", x + column, "y+row", y + row);
+          currentBoard[x + Number(column)][y + Number(row)] = [1, boxColor];
+          fill(boxColor);
+          stroke(strokeColor);
+          rect(
+            (x + column) * unitLength,
+            (y + row) * unitLength,
+            unitLength,
+            unitLength
+          );
+        }
+      }
+    }
   }
 }
 
