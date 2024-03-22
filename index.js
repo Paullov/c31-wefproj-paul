@@ -7,9 +7,10 @@ let columns; /* To be determined by window width */
 let rows; /* To be determined by window height */
 let currentBoard;
 let nextBoard;
+
 let gameRule = "normal";
 let gameStart = true;
-let lifeForm = "normal";
+let lifeForm = "usual";
 
 //pattern//
 const pattern = `
@@ -79,58 +80,6 @@ function patternConvert(pattern) {
   return patternConvertedArray;
 }
 
-// Simple example, see optional options for more configuration.
-
-//picker//
-const pickr = Pickr.create({
-  el: ".color-picker",
-  theme: "classic", // or 'monolith', or 'nano'
-  default: "#6750a4",
-
-  swatches: [
-    /*    "rgba(244, 67, 54, 1)", */
-    /*     "rgba(233, 30, 99, 0.95)",
-    "rgba(156, 39, 176, 0.9)",
-    "rgba(103, 58, 183, 0.85)",
-    "rgba(63, 81, 181, 0.8)",
-    "rgba(33, 150, 243, 0.75)",
-    "rgba(3, 169, 244, 0.7)",
-    "rgba(0, 188, 212, 0.7)",
-    "rgba(0, 150, 136, 0.75)",
-    "rgba(76, 175, 80, 0.8)",
-    "rgba(139, 195, 74, 0.85)",
-    "rgba(205, 220, 57, 0.9)",
-    "rgba(255, 235, 59, 0.95)",
-    "rgba(255, 193, 7, 1)", */
-  ],
-
-  components: {
-    // Main components
-    preview: true,
-    /*   opacity: true, */
-    hue: true,
-
-    // Input / output Options
-    interaction: {
-      hex: true,
-      rgba: true,
-      /*       hsla: true,
-      hsva: true,
-      cmyk: true, */
-      input: true,
-      /*    clear: true, */
-      save: true,
-    },
-  },
-});
-
-pickr.on("save", (color, source, instance) => {
-  const rgbaColor = color.toRGBA().map((col) => Math.round(col));
-  const formatColor = `rgba(${rgbaColor.join(",")})`;
-  console.log(formatColor);
-  boxColor = formatColor;
-});
-
 /* set up  */
 function setup() {
   document.addEventListener("click", (event) => {
@@ -172,11 +121,26 @@ function setup() {
     if (event.target.matches(".start_stop_btn") && gameStart === true) {
       noLoop();
       gameStart = false;
+    } else if (event.target.matches(".random_btn")) {
+      for (let i = 0; i < columns; i++) {
+        for (let j = 0; j < rows; j++) {
+          currentBoard[i][j] = random() > 0.9 ? [1, boxColor] : [0];
+        }
+      }
     } else if (event.target.matches(".start_stop_btn") && gameStart === false) {
       loop();
       gameStart = true;
     }
   });
+
+  const colorPicker = document.querySelector("#color-picker");
+  colorPicker.addEventListener(
+    "change",
+    (event) => {
+      boxColor = event.target.value;
+    },
+    true
+  );
 
   const darkModeButton = document.querySelector(".night_btn");
   darkModeButton.addEventListener("click", () => {
@@ -228,6 +192,8 @@ function draw() {
     for (let j = 0; j < rows; j++) {
       if (currentBoard[i][j][0] === 1) {
         fill(currentBoard[i][j][1]);
+        if (nextBoard[i][j][0] === 1)
+          fill(tinycolor(currentBoard[i][j][1]).darken(10).toString());
       } else if (currentBoard[i][j][0] === 0) {
         fill(255);
       }
@@ -235,12 +201,10 @@ function draw() {
       rect(i * unitLength, j * unitLength, unitLength, unitLength);
     }
   }
+  const temp = currentBoard;
+  passBoard = temp;
 }
 
-/* function windowResized() {
-  resizeCanvas();
-}
- */
 function generate() {
   //Loop over every single box on the board
   for (let x = 0; x < columns; x++) {
@@ -290,6 +254,7 @@ function generate() {
           }
         } else {
           // Stasis
+          /*   if (currentBoard[x][y][0] === 1) nextBoard[x][y][1] = "#808080"; */
           nextBoard[x][y] = currentBoard[x][y];
         }
       }
@@ -362,6 +327,15 @@ function generate() {
     }
   }
 
+  //compare nextboard with passboard
+
+  /*   for (let i = 0; i < currentBoard.length; i++) {
+    for (let j = 0; i < currentBoard[i].length; j++) {
+      if (nextBoard[i][j][0] === 1 && passBoard[i][j][0] === 1)
+        nextBoard[i][j] = [1, "#808080"];
+    }
+  } */
+
   // Swap the nextBoard to be the current Board
   [currentBoard, nextBoard] = [nextBoard, currentBoard];
 }
@@ -379,7 +353,7 @@ function mouseDragged() {
   const x = Math.floor(mouseX / unitLength);
   const y = Math.floor(mouseY / unitLength);
 
-  if (lifeForm === "normal") {
+  if (lifeForm === "usual") {
     currentBoard[x][y] = [1, boxColor];
     fill(boxColor);
     stroke(strokeColor);
@@ -390,7 +364,12 @@ function mouseDragged() {
     for (let row in gun) {
       for (let column in gun[row]) {
         if (gun[row][column] === 1) {
-          currentBoard[x + Number(column)][y + Number(row)] = [1, boxColor];
+          currentBoard[(x + Number(column) + columns) % columns][
+            (y + Number(row) + rows) % rows
+          ] = [1, boxColor];
+          /*       if (currentBoard.max() > windowWidth / unitLength) {
+            console.log(currentBoard.max());
+          } */
 
           fill(boxColor);
           stroke(strokeColor);
@@ -409,7 +388,9 @@ function mouseDragged() {
     for (let row in spider) {
       for (let column in spider[row]) {
         if (spider[row][column] === 1) {
-          currentBoard[x + Number(column)][y + Number(row)] = [1, boxColor];
+          currentBoard[(x + Number(column) + columns) % columns][
+            (y + Number(row) + rows) % rows
+          ] = [1, boxColor];
           fill(boxColor);
           stroke(strokeColor);
           rect(
@@ -428,7 +409,9 @@ function mouseDragged() {
       for (let column in wall[row]) {
         if (wall[row][column] === 1) {
           console.log("x+column", x + column, "y+row", y + row);
-          currentBoard[x + Number(column)][y + Number(row)] = [1, boxColor];
+          currentBoard[(x + Number(column) + columns) % columns][
+            (y + Number(row) + rows) % rows
+          ] = [1, boxColor];
           fill(boxColor);
           stroke(strokeColor);
           rect(

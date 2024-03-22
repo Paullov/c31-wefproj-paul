@@ -6,7 +6,7 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <link
-      rel="stylesheet"
+      rel="styleshee              t"
       href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"
     />
     <link
@@ -23,6 +23,7 @@
     <main class="main_section">
       <button class="reset_btn">Reset</button>
       <button class="start_stop_btn">Start</button>
+      <button class="random_btn">Random</button>
       <div class="slidecontainer">
         <input
           type="range"
@@ -35,7 +36,7 @@
       </div>
 
       <select name="life_pattern" id="life_pattern">
-        <option id="normal" value="normal">Normal</option>
+        <option id="usual" value="usual">Normal</option>
         <option id="gun" value="gun">Gun</option>
         <option id="wall" value="wall">wall</option>
         <option id="spider" value="spider">Spider</option>
@@ -48,10 +49,16 @@
         <option value="fragile">Fragile Life</option>
       </select>
       <button class="night_btn">Night Mode</button>
-      <div class="picker_container">
-        <div class="color-picker"></div>
-      </div>
+
+      <label for="color-picker">Color:</label>
+      <input type="color" value="#6750a4" id="color-picker" />
     </main>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.6.0/tinycolor.min.js"
+      integrity="sha512-AvCfbOQzCVi2ctVWF4m89jLwTn/zVPJuS7rhiKyY3zqyCdbPqtvNa0I628GJqPytbowfFjkAGOpq85E5kQc40Q=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"

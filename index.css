@@ -59,7 +59,8 @@ header {
 
 .reset_btn,
 .start_stop_btn,
-.night_btn {
+.night_btn,
+.random_btn {
   color: var(--white-color);
   background-color: var(--primary-color);
   border: none;
@@ -100,9 +101,4 @@ header {
 select {
   line-height: 20px;
   display: inline-block;
-}
-
-#gun {
-  background-image: url(/assets/Gospers_glider_gun.gif);
-  width: 100%;
 }
