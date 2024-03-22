@@ -11,6 +11,28 @@ let nextBoard;
 let gameRule = "normal";
 let gameStart = true;
 let lifeForm = "usual";
+let coordinateX;
+let coordinateY;
+
+//window resize//
+function windowResized() {
+  resizeCanvas(windowWidth * 0.92, windowHeight * 0.6);
+  /*Calculate the number of columns and rows */
+  columns = floor(width / unitLength);
+  rows = floor(height / unitLength);
+  columns = floor(width / unitLength);
+  rows = floor(height / unitLength);
+
+  /*Making both currentBoard and nextBoard 2-dimensional matrix that has (columns * rows) boxes. */
+  currentBoard = [];
+  nextBoard = [];
+  for (let i = 0; i < columns; i++) {
+    currentBoard[i] = [];
+    nextBoard[i] = [];
+  }
+  // Now both currentBoard and nextBoard are array of array of undefined values.
+  initiate(); // Set the initial values of the currentBoard and nextBoard
+}
 
 //pattern//
 const pattern = `
@@ -88,8 +110,8 @@ function setup() {
       for (let i = 0; i < columns; i++) {
         for (let j = 0; j < rows; j++) {
           /*      currentBoard[i][j] = random() > 0.8 ? 1 : 0; */
-          currentBoard[i][j] = [0];
-          nextBoard[i][j] = [0];
+          currentBoard[i][j] = [0, boxColor, 0];
+          nextBoard[i][j] = [0, boxColor, 0];
         }
       }
       noLoop();
@@ -124,7 +146,8 @@ function setup() {
     } else if (event.target.matches(".random_btn")) {
       for (let i = 0; i < columns; i++) {
         for (let j = 0; j < rows; j++) {
-          currentBoard[i][j] = random() > 0.9 ? [1, boxColor] : [0];
+          currentBoard[i][j] =
+            random() > 0.9 ? [1, boxColor, 0] : [0, boxColor, 0];
         }
       }
     } else if (event.target.matches(".start_stop_btn") && gameStart === false) {
@@ -153,7 +176,7 @@ function setup() {
   });
 
   /* Set the canvas to be under the element #canvas*/
-  const canvas = createCanvas(windowWidth, windowHeight - 380);
+  const canvas = createCanvas(windowWidth * 0.92, windowHeight * 0.6);
   canvas.parent(document.querySelector("#canvas"));
 
   /*Calculate the number of columns and rows */
@@ -175,27 +198,99 @@ function initiate() {
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
       /*      currentBoard[i][j] = random() > 0.8 ? 1 : 0; */
-      currentBoard[i][j] = [0];
-      nextBoard[i][j] = [0];
+      currentBoard[i][j] = [0, boxColor, 0];
+      nextBoard[i][j] = [0, boxColor, 0];
     }
   }
+}
+/* key pressed */
+function keyPressed() {
+  if (keyCode === LEFT_ARROW) {
+    noLoop();
+    currentBoard[coordinateX - 1][coordinateY] = [1, boxColor, 0];
+    fill(boxColor);
+    stroke(strokeColor);
+    rect(
+      coordinateX * unitLength,
+      coordinateY * unitLength,
+      unitLength,
+      unitLength
+    );
+    console.log("left side");
+  }
+  if (keyCode === RIGHT_ARROW) {
+    noLoop();
+    currentBoard[coordinateX + 1][coordinateY] = [1, boxColor, 0];
+    console.log("right side");
+    fill(boxColor);
+    stroke(strokeColor);
+    rect(
+      coordinateX * unitLength,
+      coordinateY * unitLength,
+      unitLength,
+      unitLength
+    );
+  }
+  if (keyCode === UP_ARROW) {
+    noLoop();
+    currentBoard[coordinateX][coordinateY - 1] = [1, boxColor, 0];
+    console.log("up side");
+    fill(boxColor);
+    stroke(strokeColor);
+    rect(
+      coordinateX * unitLength,
+      coordinateY * unitLength,
+      unitLength,
+      unitLength
+    );
+  }
+  if (keyCode === DOWN_ARROW) {
+    noLoop();
+    currentBoard[coordinateX][coordinateY + 1] = [1, boxColor, 0];
+    console.log("down side");
+    fill(boxColor);
+    stroke(strokeColor);
+    rect(
+      coordinateX * unitLength,
+      coordinateY * unitLength,
+      unitLength,
+      unitLength
+    );
+  }
+
+  /*  return false; // prevent any default behaviour */
+}
+
+function keyReleased() {
+  coordinateX = Math.floor(mouseX / unitLength);
+  coordinateY = Math.floor(mouseX / unitLength);
 }
 
 /* draw */
 function draw() {
-  background(255);
+  background("#bbadde");
 
   frameRate(frameRateNum);
 
   generate();
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
+      if (currentBoard[i][j][0] === 0 && nextBoard[i][j] === 1) {
+        currentBoard[i][j][2] = 0;
+      }
       if (currentBoard[i][j][0] === 1) {
-        fill(currentBoard[i][j][1]);
-        if (nextBoard[i][j][0] === 1)
-          fill(tinycolor(currentBoard[i][j][1]).darken(10).toString());
+        fill(tinycolor(currentBoard[i][j][1]).darken(0).toString());
+        if (nextBoard[i][j][0] === 1) {
+          currentBoard[i][j][2] = currentBoard[i][j][2] + 1;
+          /*   console.log(currentBoard[i][j][2]); */
+          fill(
+            tinycolor(currentBoard[i][j][1])
+              .darken(2 * currentBoard[i][j][2])
+              .toString()
+          );
+        }
       } else if (currentBoard[i][j][0] === 0) {
-        fill(255);
+        fill("#bbadde");
       }
       stroke(strokeColor);
       rect(i * unitLength, j * unitLength, unitLength, unitLength);
@@ -225,32 +320,123 @@ function generate() {
 
       // Rules of Life
       if (gameRule === "normal") {
-        if (currentBoard[x][y][0] == 1 && neighbors < 2) {
+        if (
+          currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
+          neighbors < 2
+        ) {
           // Die of Loneliness
-          nextBoard[x][y] = [0];
-        } else if (currentBoard[x][y][0] == 1 && neighbors > 3) {
+          nextBoard[x][y] = [
+            0,
+            currentBoard[(x + columns) % columns][(y + rows) % rows][1],
+            currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+          ];
+        } else if (
+          currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
+          neighbors > 3
+        ) {
           // Die of Overpopulation
-          nextBoard[x][y] = [0];
-        } else if (currentBoard[x][y][0] == 0 && neighbors == 3) {
+          nextBoard[x][y] = [
+            0,
+            currentBoard[(x + columns) % columns][(y + rows) % rows][1],
+            currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+          ];
+        } else if (
+          currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 0 &&
+          neighbors == 3
+        ) {
           // New life due to Reproduction
           // New life color based on his neigbour color form (from left to right from top to bttom)
           /*     nextBoard[x][y] = [1, boxColor]; */
-          if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
-          } else if (currentBoard?.[x]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x][y - 1][1]];
-          } else if (currentBoard?.[x + 1]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x + 1][y - 1][1]];
-          } else if (currentBoard?.[x - 1]?.[y]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x - 1][y][1]];
-          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
-          } else if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
-          } else if (currentBoard?.[x]?.[y + 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x][y + 1][1]];
-          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
+          if (
+            currentBoard?.[(x - 1 + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x - 1 + columns) % columns][
+                (y - 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + columns) % columns][(y - 1 + rows) % rows][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + 1 + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + 1 + columns) % columns][
+                (y - 1 + rows) % rows
+              ][1],
+              currentBoard[x][y][2],
+            ];
+          } else if (
+            currentBoard?.[(x - 1 + columns) % columns]?.[
+              (y + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x - 1 + columns) % columns][(y + rows) % rows][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + 1 + columns) % columns]?.[
+              (y + 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + 1 + columns) % columns][
+                (y + 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x - 1 + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x - 1 + columns) % columns][
+                (y - 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + columns) % columns]?.[
+              (y + 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + columns) % columns][(y + 1 + rows) % rows][1],
+              currentBoard[x][y][2],
+            ];
+          } else if (
+            currentBoard?.[(x + 1 + columns) % columns]?.[
+              (y + 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + 1 + columns) % columns][
+                (y + 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
           }
         } else {
           // Stasis
@@ -259,82 +445,258 @@ function generate() {
         }
       }
       if (gameRule === "tough") {
-        if (currentBoard[x][y][0] == 1 && neighbors < 2) {
+        if (
+          currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
+          neighbors < 2
+        ) {
           // Die of Loneliness
-          nextBoard[x][y] = [0];
-        } else if (currentBoard[x][y][0] == 1 && neighbors > 4) {
+          nextBoard[x][y] = [
+            0,
+            currentBoard[(x + columns) % columns][(y + rows) % rows][1],
+            currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+          ];
+        } else if (
+          currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
+          neighbors > 4
+        ) {
           // Die of Overpopulation
-          nextBoard[x][y] = [0];
-        } else if (currentBoard[x][y][0] == 0 && neighbors >= 2) {
+          nextBoard[x][y] = [
+            0,
+            currentBoard[(x + columns) % columns][(y + rows) % rows][1],
+            currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+          ];
+        } else if (
+          currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 0 &&
+          neighbors >= 2
+        ) {
           // New life due to Reproduction
           // New life color based on his neigbour color form (from left to right from top to bttom)
-          if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
-          } else if (currentBoard?.[x]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x][y - 1][1]];
-          } else if (currentBoard?.[x + 1]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x + 1][y - 1][1]];
-          } else if (currentBoard?.[x - 1]?.[y]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x - 1][y][1]];
-          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
-          } else if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
-          } else if (currentBoard?.[x]?.[y + 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x][y + 1][1]];
-          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
+          /*     nextBoard[x][y] = [1, boxColor]; */
+          if (
+            currentBoard?.[(x - 1 + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x - 1 + columns) % columns][
+                (y - 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + columns) % columns][(y - 1 + rows) % rows][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + 1 + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + 1 + columns) % columns][
+                (y - 1 + rows) % rows
+              ][1],
+              currentBoard[x][y][2],
+            ];
+          } else if (
+            currentBoard?.[(x - 1 + columns) % columns]?.[
+              (y + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x - 1 + columns) % columns][(y + rows) % rows][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + 1 + columns) % columns]?.[
+              (y + 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + 1 + columns) % columns][
+                (y + 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x - 1 + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x - 1 + columns) % columns][
+                (y - 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + columns) % columns]?.[
+              (y + 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + columns) % columns][(y + 1 + rows) % rows][1],
+              currentBoard[x][y][2],
+            ];
+          } else if (
+            currentBoard?.[(x + 1 + columns) % columns]?.[
+              (y + 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + 1 + columns) % columns][
+                (y + 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
           }
         } else {
           // Stasis
+          /*   if (currentBoard[x][y][0] === 1) nextBoard[x][y][1] = "#808080"; */
           nextBoard[x][y] = currentBoard[x][y];
         }
       }
 
       if (gameRule === "fragile") {
-        if (currentBoard[x][y][0] == 1 && neighbors < 3) {
+        if (
+          currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
+          neighbors < 3
+        ) {
           // Die of Loneliness
-          nextBoard[x][y] = [0];
-        } else if (currentBoard[x][y][0] == 1 && neighbors > 3) {
+          nextBoard[x][y] = [
+            0,
+            currentBoard[(x + columns) % columns][(y + rows) % rows][1],
+            currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+          ];
+        } else if (
+          currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
+          neighbors > 3
+        ) {
           // Die of Overpopulation
-          nextBoard[x][y] = [0];
-        } else if (currentBoard[x][y][0] == 0 && neighbors == 3) {
-          // New life due to Reproduction
+          nextBoard[x][y] = [
+            0,
+            currentBoard[(x + columns) % columns][(y + rows) % rows][1],
+            currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+          ];
+        } else if (
+          currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 0 &&
+          neighbors == 3
+        ) {
           // New life due to Reproduction
           // New life color based on his neigbour color form (from left to right from top to bttom)
-          if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
-          } else if (currentBoard?.[x]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x][y - 1][1]];
-          } else if (currentBoard?.[x + 1]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x + 1][y - 1][1]];
-          } else if (currentBoard?.[x - 1]?.[y]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x - 1][y][1]];
-          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
-          } else if (currentBoard?.[x - 1]?.[y - 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x - 1][y - 1][1]];
-          } else if (currentBoard?.[x]?.[y + 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x][y + 1][1]];
-          } else if (currentBoard?.[x + 1]?.[y + 1]?.[0] === 1) {
-            nextBoard[x][y] = [1, currentBoard[x + 1][y + 1][1]];
+          /*     nextBoard[x][y] = [1, boxColor]; */
+          if (
+            currentBoard?.[(x - 1 + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x - 1 + columns) % columns][
+                (y - 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + columns) % columns][(y - 1 + rows) % rows][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + 1 + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + 1 + columns) % columns][
+                (y - 1 + rows) % rows
+              ][1],
+              currentBoard[x][y][2],
+            ];
+          } else if (
+            currentBoard?.[(x - 1 + columns) % columns]?.[
+              (y + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x - 1 + columns) % columns][(y + rows) % rows][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + 1 + columns) % columns]?.[
+              (y + 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + 1 + columns) % columns][
+                (y + 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x - 1 + columns) % columns]?.[
+              (y - 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x - 1 + columns) % columns][
+                (y - 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
+          } else if (
+            currentBoard?.[(x + columns) % columns]?.[
+              (y + 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + columns) % columns][(y + 1 + rows) % rows][1],
+              currentBoard[x][y][2],
+            ];
+          } else if (
+            currentBoard?.[(x + 1 + columns) % columns]?.[
+              (y + 1 + rows) % rows
+            ]?.[0] === 1
+          ) {
+            nextBoard[x][y] = [
+              1,
+              currentBoard[(x + 1 + columns) % columns][
+                (y + 1 + rows) % rows
+              ][1],
+              currentBoard[(x + columns) % columns][(y + rows) % rows][2],
+            ];
           }
         } else {
           // Stasis
+          /*   if (currentBoard[x][y][0] === 1) nextBoard[x][y][1] = "#808080"; */
           nextBoard[x][y] = currentBoard[x][y];
         }
       }
     }
   }
-
-  //compare nextboard with passboard
-
-  /*   for (let i = 0; i < currentBoard.length; i++) {
-    for (let j = 0; i < currentBoard[i].length; j++) {
-      if (nextBoard[i][j][0] === 1 && passBoard[i][j][0] === 1)
-        nextBoard[i][j] = [1, "#808080"];
-    }
-  } */
 
   // Swap the nextBoard to be the current Board
   [currentBoard, nextBoard] = [nextBoard, currentBoard];
@@ -346,7 +708,7 @@ function mouseDragged() {
    * If the mouse coordinate is outside the board
    */
   /*  if (mouseX > unitLength * columns || mouseY > unitLength * rows) */
-  if (mouseX > width || mouseY > height) {
+  if (mouseX > width || mouseY > height || mouseY < 0 || mouseX < 0) {
     return;
   }
 
@@ -354,7 +716,7 @@ function mouseDragged() {
   const y = Math.floor(mouseY / unitLength);
 
   if (lifeForm === "usual") {
-    currentBoard[x][y] = [1, boxColor];
+    currentBoard[x][y] = [1, boxColor, 0];
     fill(boxColor);
     stroke(strokeColor);
     rect(x * unitLength, y * unitLength, unitLength, unitLength);
@@ -366,7 +728,7 @@ function mouseDragged() {
         if (gun[row][column] === 1) {
           currentBoard[(x + Number(column) + columns) % columns][
             (y + Number(row) + rows) % rows
-          ] = [1, boxColor];
+          ] = [1, boxColor, 0];
           /*       if (currentBoard.max() > windowWidth / unitLength) {
             console.log(currentBoard.max());
           } */
@@ -390,7 +752,7 @@ function mouseDragged() {
         if (spider[row][column] === 1) {
           currentBoard[(x + Number(column) + columns) % columns][
             (y + Number(row) + rows) % rows
-          ] = [1, boxColor];
+          ] = [1, boxColor, 0];
           fill(boxColor);
           stroke(strokeColor);
           rect(
@@ -411,7 +773,7 @@ function mouseDragged() {
           console.log("x+column", x + column, "y+row", y + row);
           currentBoard[(x + Number(column) + columns) % columns][
             (y + Number(row) + rows) % rows
-          ] = [1, boxColor];
+          ] = [1, boxColor, 0];
           fill(boxColor);
           stroke(strokeColor);
           rect(
