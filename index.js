@@ -1,18 +1,19 @@
 /* Global value  */
 const unitLength = 10;
 let boxColor = "#6750a4";
-const strokeColor = "#eaddff";
+let strokeColor = "#eaddff";
 let frameRateNum = 10;
 let columns; /* To be determined by window width */
 let rows; /* To be determined by window height */
-let currentBoard;
-let nextBoard;
+let currentBoard = 0;
+let nextBoard = 0;
 
 let gameRule = "normal";
 let gameStart = true;
 let lifeForm = "usual";
 let coordinateX;
 let coordinateY;
+let backgroundColor = "#bbadde";
 
 //window resize//
 function windowResized() {
@@ -140,19 +141,35 @@ function setup() {
   });
 
   document.addEventListener("click", (event) => {
-    if (event.target.matches(".start_stop_btn") && gameStart === true) {
-      noLoop();
-      gameStart = false;
+    if (event.target.matches(".start_stop_btn")) {
+      const button = document.querySelector(".start_stop_btn");
+      if (gameStart === true) {
+        console.log("stop");
+
+        button.innerHTML = "Resume";
+        noLoop();
+
+        gameStart = false;
+        return;
+      }
+      if (gameStart == false) {
+        console.log("resume");
+
+        button.innerHTML = "Stop";
+        loop();
+        gameStart = true;
+        return;
+      }
     } else if (event.target.matches(".random_btn")) {
       for (let i = 0; i < columns; i++) {
         for (let j = 0; j < rows; j++) {
-          currentBoard[i][j] =
-            random() > 0.9 ? [1, boxColor, 0] : [0, boxColor, 0];
+          if (currentBoard[i][j][0] !== 1 && random() > 0.8)
+            /*   currentBoard[i][j] =
+              random() > 0.9 ? [1, boxColor, 0] : [0, boxColor, 0]; */
+            currentBoard[i][j] = [1, boxColor, 0];
         }
       }
-    } else if (event.target.matches(".start_stop_btn") && gameStart === false) {
-      loop();
-      gameStart = true;
+      return;
     }
   });
 
@@ -168,11 +185,17 @@ function setup() {
   const darkModeButton = document.querySelector(".night_btn");
   darkModeButton.addEventListener("click", () => {
     document.documentElement.classList.toggle("dark-theme");
-    console.log(document.documentElement.classList[0]);
+
     if (document.documentElement.classList[0] === "dark-theme") {
+      backgroundColor = "#21005d";
+      strokeColor = "#07e207";
       darkModeButton.innerHTML = "Light Mode";
+      return;
     } else if (document.documentElement.classList[0] !== "dark-theme")
-      darkModeButton.innerHTML = "Night Mode";
+      backgroundColor = "#bbadde";
+    strokeColor = "#eaddff";
+    darkModeButton.innerHTML = "Night Mode";
+    return;
   });
 
   /* Set the canvas to be under the element #canvas*/
@@ -204,71 +227,10 @@ function initiate() {
   }
 }
 /* key pressed */
-function keyPressed() {
-  if (keyCode === LEFT_ARROW) {
-    noLoop();
-    currentBoard[coordinateX - 1][coordinateY] = [1, boxColor, 0];
-    fill(boxColor);
-    stroke(strokeColor);
-    rect(
-      coordinateX * unitLength,
-      coordinateY * unitLength,
-      unitLength,
-      unitLength
-    );
-    console.log("left side");
-  }
-  if (keyCode === RIGHT_ARROW) {
-    noLoop();
-    currentBoard[coordinateX + 1][coordinateY] = [1, boxColor, 0];
-    console.log("right side");
-    fill(boxColor);
-    stroke(strokeColor);
-    rect(
-      coordinateX * unitLength,
-      coordinateY * unitLength,
-      unitLength,
-      unitLength
-    );
-  }
-  if (keyCode === UP_ARROW) {
-    noLoop();
-    currentBoard[coordinateX][coordinateY - 1] = [1, boxColor, 0];
-    console.log("up side");
-    fill(boxColor);
-    stroke(strokeColor);
-    rect(
-      coordinateX * unitLength,
-      coordinateY * unitLength,
-      unitLength,
-      unitLength
-    );
-  }
-  if (keyCode === DOWN_ARROW) {
-    noLoop();
-    currentBoard[coordinateX][coordinateY + 1] = [1, boxColor, 0];
-    console.log("down side");
-    fill(boxColor);
-    stroke(strokeColor);
-    rect(
-      coordinateX * unitLength,
-      coordinateY * unitLength,
-      unitLength,
-      unitLength
-    );
-  }
-
-  /*  return false; // prevent any default behaviour */
-}
-
-function keyReleased() {
-  coordinateX = Math.floor(mouseX / unitLength);
-  coordinateY = Math.floor(mouseX / unitLength);
-}
 
 /* draw */
 function draw() {
-  background("#bbadde");
+  background(backgroundColor);
 
   frameRate(frameRateNum);
 
@@ -290,7 +252,7 @@ function draw() {
           );
         }
       } else if (currentBoard[i][j][0] === 0) {
-        fill("#bbadde");
+        fill(backgroundColor);
       }
       stroke(strokeColor);
       rect(i * unitLength, j * unitLength, unitLength, unitLength);
@@ -798,4 +760,91 @@ function mousePressed() {
  */
 function mouseReleased() {
   loop();
+
+  coordinateX = Math.floor(mouseX / unitLength);
+  coordinateY = Math.floor(mouseY / unitLength);
+}
+
+function keyPressed() {
+  if (keyCode === LEFT_ARROW) {
+    gameStart = false;
+    noLoop();
+    currentBoard[(coordinateX - 1 + columns) % columns][coordinateY % rows] = [
+      1,
+      boxColor,
+      0,
+    ];
+
+    fill(boxColor);
+    stroke(strokeColor);
+    rect(
+      ((coordinateX - 1 + columns) % columns) * unitLength,
+      ((coordinateY + rows) % rows) * unitLength,
+      unitLength,
+      unitLength
+    );
+    coordinateX = (coordinateX - 1 + columns) % columns;
+  }
+  if (keyCode === RIGHT_ARROW) {
+    gameStart = false;
+    noLoop();
+    currentBoard[(coordinateX + 1 + columns) % columns][coordinateY % rows] = [
+      1,
+      boxColor,
+      0,
+    ];
+
+    fill(boxColor);
+    stroke(strokeColor);
+    rect(
+      ((coordinateX + 1 + columns) % columns) * unitLength,
+      ((coordinateY + rows) % rows) * unitLength,
+      unitLength,
+      unitLength
+    );
+    coordinateX = (coordinateX + 1 + columns) % columns;
+  }
+  if (keyCode === UP_ARROW) {
+    gameStart = false;
+    noLoop();
+    currentBoard[(coordinateX + columns) % columns][
+      (coordinateY - 1 + rows) % rows
+    ] = [1, boxColor, 0];
+
+    fill(boxColor);
+    stroke(strokeColor);
+    rect(
+      ((coordinateX + columns) % columns) * unitLength,
+      ((coordinateY - 1 + rows) % rows) * unitLength,
+      unitLength,
+      unitLength
+    );
+    coordinateY = (coordinateY - 1 + columns) % columns;
+  }
+  if (keyCode === DOWN_ARROW) {
+    gameStart = false;
+    noLoop();
+    currentBoard[(coordinateX + columns) % columns][
+      (coordinateY + 1 + rows) % rows
+    ] = [1, boxColor, 0];
+
+    fill(boxColor);
+    stroke(strokeColor);
+    rect(
+      ((coordinateX + columns) % columns) * unitLength,
+      ((coordinateY + 1 + rows) % rows) * unitLength,
+      unitLength,
+      unitLength
+    );
+    coordinateY = (coordinateY + 1 + columns) % columns;
+  }
+
+  if (keyCode === ENTER) {
+    gameStart = true;
+    loop();
+    coordinateX = 0;
+    coordinateY = 0;
+  }
+
+  /*  return false; // prevent any default behaviour */
 }

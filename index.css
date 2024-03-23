@@ -58,16 +58,21 @@ header {
   color: var(--tertiary-color);
 }
 
+#canvas {
+  cursor: pointer;
+}
+
 .reset_btn,
 .start_stop_btn,
 .night_btn,
 .random_btn {
   color: var(--white-color);
   background-color: var(--primary-color);
-  border: none;
-  border-radius: 8px;
-  font-size: 24px;
+  border: solid 2px var(--white-color);
+  border-radius: 16px;
+  font-size: 16px;
   padding: 6px 12px;
+  text-align: center;
 }
 
 .color_label {
