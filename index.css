@@ -45,9 +45,20 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
   flex-wrap: wrap;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+button,
+select {
+  transition: 0.2 ease-in;
+}
+
+button:hover,
+select:hover {
+  transform: scale(1.2);
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 html.dark-theme {
   --primary-color: #1d0d47;

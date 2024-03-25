@@ -1,10 +1,9 @@
-/* Global value  */
 const unitLength = 10;
 let boxColor = "#6750a4";
 let strokeColor = "#eaddff";
 let frameRateNum = 10;
-let columns; /* To be determined by window width */
-let rows; /* To be determined by window height */
+let columns;
+let rows;
 let currentBoard = 0;
 let nextBoard = 0;
 
@@ -15,27 +14,24 @@ let coordinateX;
 let coordinateY;
 let backgroundColor = "#bbadde";
 
-//window resize//
 function windowResized() {
   resizeCanvas(windowWidth * 0.92, windowHeight * 0.6);
-  /*Calculate the number of columns and rows */
+
   columns = floor(width / unitLength);
   rows = floor(height / unitLength);
   columns = floor(width / unitLength);
   rows = floor(height / unitLength);
 
-  /*Making both currentBoard and nextBoard 2-dimensional matrix that has (columns * rows) boxes. */
   currentBoard = [];
   nextBoard = [];
   for (let i = 0; i < columns; i++) {
     currentBoard[i] = [];
     nextBoard[i] = [];
   }
-  // Now both currentBoard and nextBoard are array of array of undefined values.
-  initiate(); // Set the initial values of the currentBoard and nextBoard
+
+  initiate();
 }
 
-//pattern//
 const pattern = `
 ..........OO...............
 .....OOO..OOO..............
@@ -103,14 +99,12 @@ function patternConvert(pattern) {
   return patternConvertedArray;
 }
 
-/* set up  */
 function setup() {
   document.addEventListener("click", (event) => {
     if (event.target.matches(".reset_btn")) {
       console.log("click the reset ");
       for (let i = 0; i < columns; i++) {
         for (let j = 0; j < rows; j++) {
-          /*      currentBoard[i][j] = random() > 0.8 ? 1 : 0; */
           currentBoard[i][j] = [0, boxColor, 0];
           nextBoard[i][j] = [0, boxColor, 0];
         }
@@ -119,7 +113,6 @@ function setup() {
     }
   });
 
-  // add onchange eventlistener //
   document.addEventListener("change", (event) => {
     if (event.target.matches(".slider")) {
       console.log("slider is clicked");
@@ -164,8 +157,6 @@ function setup() {
       for (let i = 0; i < columns; i++) {
         for (let j = 0; j < rows; j++) {
           if (currentBoard[i][j][0] !== 1 && random() > 0.8)
-            /*   currentBoard[i][j] =
-              random() > 0.9 ? [1, boxColor, 0] : [0, boxColor, 0]; */
             currentBoard[i][j] = [1, boxColor, 0];
         }
       }
@@ -198,37 +189,31 @@ function setup() {
     return;
   });
 
-  /* Set the canvas to be under the element #canvas*/
   const canvas = createCanvas(windowWidth * 0.92, windowHeight * 0.6);
   canvas.parent(document.querySelector("#canvas"));
 
-  /*Calculate the number of columns and rows */
   columns = floor(width / unitLength);
   rows = floor(height / unitLength);
 
-  /*Making both currentBoard and nextBoard 2-dimensional matrix that has (columns * rows) boxes. */
   currentBoard = [];
   nextBoard = [];
   for (let i = 0; i < columns; i++) {
     currentBoard[i] = [];
     nextBoard[i] = [];
   }
-  // Now both currentBoard and nextBoard are array of array of undefined values.
-  initiate(); // Set the initial values of the currentBoard and nextBoard
+
+  initiate();
 }
 
 function initiate() {
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
-      /*      currentBoard[i][j] = random() > 0.8 ? 1 : 0; */
       currentBoard[i][j] = [0, boxColor, 0];
       nextBoard[i][j] = [0, boxColor, 0];
     }
   }
 }
-/* key pressed */
 
-/* draw */
 function draw() {
   background(backgroundColor);
 
@@ -244,7 +229,7 @@ function draw() {
         fill(tinycolor(currentBoard[i][j][1]).darken(0).toString());
         if (nextBoard[i][j][0] === 1) {
           currentBoard[i][j][2] = currentBoard[i][j][2] + 1;
-          /*   console.log(currentBoard[i][j][2]); */
+
           fill(
             tinycolor(currentBoard[i][j][1])
               .darken(2 * currentBoard[i][j][2])
@@ -263,30 +248,25 @@ function draw() {
 }
 
 function generate() {
-  //Loop over every single box on the board
   for (let x = 0; x < columns; x++) {
     for (let y = 0; y < rows; y++) {
-      // Count all living members in the Moore neighborhood(8 boxes surrounding)
       let neighbors = 0;
       for (let i of [-1, 0, 1]) {
         for (let j of [-1, 0, 1]) {
           if (i == 0 && j == 0) {
-            // the cell itself is not its own neighbor
             continue;
           }
-          // The modulo operator is crucial for wrapping on the edge
+
           neighbors +=
             currentBoard[(x + i + columns) % columns][(y + j + rows) % rows][0];
         }
       }
 
-      // Rules of Life
       if (gameRule === "normal") {
         if (
           currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
           neighbors < 2
         ) {
-          // Die of Loneliness
           nextBoard[x][y] = [
             0,
             currentBoard[(x + columns) % columns][(y + rows) % rows][1],
@@ -296,7 +276,6 @@ function generate() {
           currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
           neighbors > 3
         ) {
-          // Die of Overpopulation
           nextBoard[x][y] = [
             0,
             currentBoard[(x + columns) % columns][(y + rows) % rows][1],
@@ -306,9 +285,6 @@ function generate() {
           currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 0 &&
           neighbors == 3
         ) {
-          // New life due to Reproduction
-          // New life color based on his neigbour color form (from left to right from top to bttom)
-          /*     nextBoard[x][y] = [1, boxColor]; */
           if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
               (y - 1 + rows) % rows
@@ -401,8 +377,6 @@ function generate() {
             ];
           }
         } else {
-          // Stasis
-          /*   if (currentBoard[x][y][0] === 1) nextBoard[x][y][1] = "#808080"; */
           nextBoard[x][y] = currentBoard[x][y];
         }
       }
@@ -411,7 +385,6 @@ function generate() {
           currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
           neighbors < 2
         ) {
-          // Die of Loneliness
           nextBoard[x][y] = [
             0,
             currentBoard[(x + columns) % columns][(y + rows) % rows][1],
@@ -421,7 +394,6 @@ function generate() {
           currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
           neighbors > 4
         ) {
-          // Die of Overpopulation
           nextBoard[x][y] = [
             0,
             currentBoard[(x + columns) % columns][(y + rows) % rows][1],
@@ -431,9 +403,6 @@ function generate() {
           currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 0 &&
           neighbors >= 2
         ) {
-          // New life due to Reproduction
-          // New life color based on his neigbour color form (from left to right from top to bttom)
-          /*     nextBoard[x][y] = [1, boxColor]; */
           if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
               (y - 1 + rows) % rows
@@ -526,8 +495,6 @@ function generate() {
             ];
           }
         } else {
-          // Stasis
-          /*   if (currentBoard[x][y][0] === 1) nextBoard[x][y][1] = "#808080"; */
           nextBoard[x][y] = currentBoard[x][y];
         }
       }
@@ -537,7 +504,6 @@ function generate() {
           currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
           neighbors < 3
         ) {
-          // Die of Loneliness
           nextBoard[x][y] = [
             0,
             currentBoard[(x + columns) % columns][(y + rows) % rows][1],
@@ -547,7 +513,6 @@ function generate() {
           currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 1 &&
           neighbors > 3
         ) {
-          // Die of Overpopulation
           nextBoard[x][y] = [
             0,
             currentBoard[(x + columns) % columns][(y + rows) % rows][1],
@@ -557,9 +522,6 @@ function generate() {
           currentBoard[(x + columns) % columns][(y + rows) % rows][0] == 0 &&
           neighbors == 3
         ) {
-          // New life due to Reproduction
-          // New life color based on his neigbour color form (from left to right from top to bttom)
-          /*     nextBoard[x][y] = [1, boxColor]; */
           if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
               (y - 1 + rows) % rows
@@ -652,24 +614,17 @@ function generate() {
             ];
           }
         } else {
-          // Stasis
-          /*   if (currentBoard[x][y][0] === 1) nextBoard[x][y][1] = "#808080"; */
           nextBoard[x][y] = currentBoard[x][y];
         }
       }
     }
   }
 
-  // Swap the nextBoard to be the current Board
   [currentBoard, nextBoard] = [nextBoard, currentBoard];
 }
 
 //EVENT HANDLE//
 function mouseDragged() {
-  /**
-   * If the mouse coordinate is outside the board
-   */
-  /*  if (mouseX > unitLength * columns || mouseY > unitLength * rows) */
   if (mouseX > width || mouseY > height || mouseY < 0 || mouseX < 0) {
     return;
   }
@@ -691,9 +646,6 @@ function mouseDragged() {
           currentBoard[(x + Number(column) + columns) % columns][
             (y + Number(row) + rows) % rows
           ] = [1, boxColor, 0];
-          /*       if (currentBoard.max() > windowWidth / unitLength) {
-            console.log(currentBoard.max());
-          } */
 
           fill(boxColor);
           stroke(strokeColor);
@@ -755,9 +707,6 @@ function mousePressed() {
   mouseDragged();
 }
 
-/**
- * When mouse is released
- */
 function mouseReleased() {
   loop();
 
@@ -768,6 +717,8 @@ function mouseReleased() {
 function keyPressed() {
   if (keyCode === LEFT_ARROW) {
     gameStart = false;
+    const button = document.querySelector(".start_stop_btn");
+    button.innerHTML = "Resume";
     noLoop();
     currentBoard[(coordinateX - 1 + columns) % columns][coordinateY % rows] = [
       1,
@@ -787,6 +738,8 @@ function keyPressed() {
   }
   if (keyCode === RIGHT_ARROW) {
     gameStart = false;
+    const button = document.querySelector(".start_stop_btn");
+    button.innerHTML = "Resume";
     noLoop();
     currentBoard[(coordinateX + 1 + columns) % columns][coordinateY % rows] = [
       1,
@@ -806,6 +759,8 @@ function keyPressed() {
   }
   if (keyCode === UP_ARROW) {
     gameStart = false;
+    const button = document.querySelector(".start_stop_btn");
+    button.innerHTML = "Resume";
     noLoop();
     currentBoard[(coordinateX + columns) % columns][
       (coordinateY - 1 + rows) % rows
@@ -823,6 +778,8 @@ function keyPressed() {
   }
   if (keyCode === DOWN_ARROW) {
     gameStart = false;
+    const button = document.querySelector(".start_stop_btn");
+    button.innerHTML = "Resume";
     noLoop();
     currentBoard[(coordinateX + columns) % columns][
       (coordinateY + 1 + rows) % rows
@@ -844,6 +801,8 @@ function keyPressed() {
     loop();
     coordinateX = 0;
     coordinateY = 0;
+    const button = document.querySelector(".start_stop_btn");
+    button.innerHTML = "Stop";
   }
 
   /*  return false; // prevent any default behaviour */
