@@ -237,7 +237,7 @@ function draw() {
   generate();
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
-      if (currentBoard[i][j][0] === 0 && nextBoard[i][j] === 1) {
+      if (currentBoard[i][j][0] === 0 && nextBoard[i][j][0] === 1) {
         currentBoard[i][j][2] = 0;
       }
       if (currentBoard[i][j][0] === 1) {

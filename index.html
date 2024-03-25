@@ -21,28 +21,48 @@
     <header>Weclome to Game of Life</header>
     <div id="canvas"></div>
     <main class="main_section">
-      <button class="reset_btn">Reset</button>
-      <button class="start_stop_btn">Stop</button>
-      <button class="random_btn">Random</button>
+      <div class="list">
+        <button class="reset_btn">Reset</button>
+        <button class="start_stop_btn">Stop</button>
+        <button class="random_btn">Random</button>
+        <button class="night_btn">Night Mode</button>
+      </div>
 
-      <select name="life_pattern" id="life_pattern">
-        <option id="usual" value="usual">Normal</option>
-        <option id="gun" value="gun">Gun</option>
-        <option id="wall" value="wall">wall</option>
-        <option id="spider" value="spider">Spider</option>
-      </select>
+      <div class="list">
+        <select name="life_pattern" id="life_pattern" class="form-select">
+          <option id="usual" value="usual">Normal</option>
+          <option id="gun" value="gun">Gun</option>
+          <option id="wall" value="wall">wall</option>
+          <option id="spider" value="spider">Spider</option>
+        </select>
 
-      <select name="player_choice" id="player_choice" value="normal">
-        <option value="normal">Normal Life</option>
-        <option value="tough">Tough Life</option>
+        <select
+          name="player_choice"
+          id="player_choice"
+          value="normal"
+          class="form-select"
+        >
+          <option value="normal">Normal Life</option>
+          <option value="tough">Tough Life</option>
 
-        <option value="fragile">Fragile Life</option>
-      </select>
-      <button class="night_btn">Night Mode</button>
-
-      <label class="color_label" for="color-picker">Color:</label>
-      <input type="color" value="#6750a4" id="color-picker" />
+          <option value="fragile">Fragile Life</option>
+        </select>
+      </div>
+      <div class="list">
+        <label class="color_label" for="color-picker">Color:</label>
+        <input type="color" value="#6750a4" id="color-picker" />
+      </div>
     </main>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+      integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+      crossorigin="anonymous"
+    ></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.6.0/tinycolor.min.js"
       integrity="sha512-AvCfbOQzCVi2ctVWF4m89jLwTn/zVPJuS7rhiKyY3zqyCdbPqtvNa0I628GJqPytbowfFjkAGOpq85E5kQc40Q=="

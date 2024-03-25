@@ -33,6 +33,22 @@ header {
   --dark-color: #1d192b;
 }
 
+.form-select {
+  width: 200px;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+}
+
+.list {
+  margin: 0 auto;
+  padding: 0 4.5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
 html.dark-theme {
   --primary-color: #1d0d47;
   --white-color: #07e207;
