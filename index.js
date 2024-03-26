@@ -1,11 +1,12 @@
 const unitLength = 10;
 let boxColor = "#6750a4";
 let strokeColor = "#eaddff";
-let frameRateNum = 10;
+let frameRateNum = 1;
 let columns;
 let rows;
-let currentBoard = 0;
-let nextBoard = 0;
+let currentBoard;
+let nextBoard;
+let backupBoard;
 
 let gameRule = "normal";
 let gameStart = true;
@@ -14,22 +15,61 @@ let coordinateX;
 let coordinateY;
 let backgroundColor = "#bbadde";
 
+
+
+
+function backupCurrentBoard(newColumns, newRows) {
+
+  backupBoard = []
+
+  for (let i = 0; i < newColumns; i++) {
+    backupBoard[i] = []
+    for (let j = 0; j < newRows; j++) {
+
+      backupBoard[i][j] = [0, boxColor, 0]
+    }
+  }
+
+  for (let i = 0; i < newColumns; i++) {
+    for (let j = 0; j < newRows; j++) {
+      if (currentBoard[i] != undefined && currentBoard[i][j] != undefined)
+        backupBoard[i][j] = currentBoard[i][j]
+    }
+  }
+
+
+  console.log("backup length", backupBoard.length, backupBoard[0].length)
+
+}
 function windowResized() {
-  resizeCanvas(windowWidth * 0.92, windowHeight * 0.6);
+  noLoop()
+  gameStart = false
 
-  columns = floor(width / unitLength);
-  rows = floor(height / unitLength);
-  columns = floor(width / unitLength);
-  rows = floor(height / unitLength);
 
-  currentBoard = [];
+  columns = floor(windowWidth * 0.92 / unitLength);
+  rows = floor(windowHeight * 0.6 / unitLength);
+
+  backupCurrentBoard(columns, rows)
+
+
   nextBoard = [];
   for (let i = 0; i < columns; i++) {
-    currentBoard[i] = [];
     nextBoard[i] = [];
   }
 
-  initiate();
+
+  for (let i = 0; i < columns; i++) {
+    for (let j = 0; j < rows; j++) {
+      nextBoard[i][j] = [0, boxColor, 0];
+    }
+  }
+
+  currentBoard = backupBoard
+
+  // console.log("after restore from backup |currentBoard ", currentBoard[columns - 1][rows - 1])
+  console.log("after restore from backup | backupBoard", backupBoard[columns - 1][rows - 1])
+  resizeCanvas(windowWidth * 0.92, windowHeight * 0.6);
+  // initiate();
 }
 
 const pattern = `
@@ -151,6 +191,7 @@ function setup() {
         button.innerHTML = "Stop";
         loop();
         gameStart = true;
+
         return;
       }
     } else if (event.target.matches(".random_btn")) {
@@ -202,6 +243,8 @@ function setup() {
     nextBoard[i] = [];
   }
 
+
+  // [[],[],[]]
   initiate();
 }
 
@@ -212,6 +255,8 @@ function initiate() {
       nextBoard[i][j] = [0, boxColor, 0];
     }
   }
+
+
 }
 
 function draw() {
@@ -219,9 +264,17 @@ function draw() {
 
   frameRate(frameRateNum);
 
-  generate();
+  if (gameStart)
+    generate();
+
+  console.log("check final cell before draw,", columns, rows, currentBoard[columns - 1][rows - 1])
+
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
+      if (currentBoard[i][j] == undefined) {
+        console.log("caught undefined,", i, j)
+      }
+
       if (currentBoard[i][j][0] === 0 && nextBoard[i][j][0] === 1) {
         currentBoard[i][j][2] = 0;
       }
@@ -287,19 +340,19 @@ function generate() {
         ) {
           if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x - 1 + columns) % columns][
-                (y - 1 + rows) % rows
+              (y - 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
           } else if (
             currentBoard?.[(x + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
@@ -309,19 +362,19 @@ function generate() {
             ];
           } else if (
             currentBoard?.[(x + 1 + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x + 1 + columns) % columns][
-                (y - 1 + rows) % rows
+              (y - 1 + rows) % rows
               ][1],
               currentBoard[x][y][2],
             ];
           } else if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
-              (y + rows) % rows
+            (y + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
@@ -331,31 +384,31 @@ function generate() {
             ];
           } else if (
             currentBoard?.[(x + 1 + columns) % columns]?.[
-              (y + 1 + rows) % rows
+            (y + 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x + 1 + columns) % columns][
-                (y + 1 + rows) % rows
+              (y + 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
           } else if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x - 1 + columns) % columns][
-                (y - 1 + rows) % rows
+              (y - 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
           } else if (
             currentBoard?.[(x + columns) % columns]?.[
-              (y + 1 + rows) % rows
+            (y + 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
@@ -365,13 +418,13 @@ function generate() {
             ];
           } else if (
             currentBoard?.[(x + 1 + columns) % columns]?.[
-              (y + 1 + rows) % rows
+            (y + 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x + 1 + columns) % columns][
-                (y + 1 + rows) % rows
+              (y + 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
@@ -405,19 +458,19 @@ function generate() {
         ) {
           if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x - 1 + columns) % columns][
-                (y - 1 + rows) % rows
+              (y - 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
           } else if (
             currentBoard?.[(x + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
@@ -427,19 +480,19 @@ function generate() {
             ];
           } else if (
             currentBoard?.[(x + 1 + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x + 1 + columns) % columns][
-                (y - 1 + rows) % rows
+              (y - 1 + rows) % rows
               ][1],
               currentBoard[x][y][2],
             ];
           } else if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
-              (y + rows) % rows
+            (y + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
@@ -449,31 +502,31 @@ function generate() {
             ];
           } else if (
             currentBoard?.[(x + 1 + columns) % columns]?.[
-              (y + 1 + rows) % rows
+            (y + 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x + 1 + columns) % columns][
-                (y + 1 + rows) % rows
+              (y + 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
           } else if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x - 1 + columns) % columns][
-                (y - 1 + rows) % rows
+              (y - 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
           } else if (
             currentBoard?.[(x + columns) % columns]?.[
-              (y + 1 + rows) % rows
+            (y + 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
@@ -483,13 +536,13 @@ function generate() {
             ];
           } else if (
             currentBoard?.[(x + 1 + columns) % columns]?.[
-              (y + 1 + rows) % rows
+            (y + 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x + 1 + columns) % columns][
-                (y + 1 + rows) % rows
+              (y + 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
@@ -524,19 +577,19 @@ function generate() {
         ) {
           if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x - 1 + columns) % columns][
-                (y - 1 + rows) % rows
+              (y - 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
           } else if (
             currentBoard?.[(x + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
@@ -546,19 +599,19 @@ function generate() {
             ];
           } else if (
             currentBoard?.[(x + 1 + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x + 1 + columns) % columns][
-                (y - 1 + rows) % rows
+              (y - 1 + rows) % rows
               ][1],
               currentBoard[x][y][2],
             ];
           } else if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
-              (y + rows) % rows
+            (y + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
@@ -568,31 +621,31 @@ function generate() {
             ];
           } else if (
             currentBoard?.[(x + 1 + columns) % columns]?.[
-              (y + 1 + rows) % rows
+            (y + 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x + 1 + columns) % columns][
-                (y + 1 + rows) % rows
+              (y + 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
           } else if (
             currentBoard?.[(x - 1 + columns) % columns]?.[
-              (y - 1 + rows) % rows
+            (y - 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x - 1 + columns) % columns][
-                (y - 1 + rows) % rows
+              (y - 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
           } else if (
             currentBoard?.[(x + columns) % columns]?.[
-              (y + 1 + rows) % rows
+            (y + 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
@@ -602,13 +655,13 @@ function generate() {
             ];
           } else if (
             currentBoard?.[(x + 1 + columns) % columns]?.[
-              (y + 1 + rows) % rows
+            (y + 1 + rows) % rows
             ]?.[0] === 1
           ) {
             nextBoard[x][y] = [
               1,
               currentBoard[(x + 1 + columns) % columns][
-                (y + 1 + rows) % rows
+              (y + 1 + rows) % rows
               ][1],
               currentBoard[(x + columns) % columns][(y + rows) % rows][2],
             ];
